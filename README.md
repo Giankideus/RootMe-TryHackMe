@@ -3,7 +3,7 @@
 
 > **Sala:** [TryHackMe – RootMe](https://tryhackme.com/room/rrootme)
 > **Dificultad:** Fácil
-> **Estado:** Completado ✅ (flags de usuario y root obtenidas; no se exponen en texto plano — ver sección de evidencias)
+> **Estado:** Completado  (flags de usuario y root obtenidas; no se exponen en texto plano — ver sección de evidencias)
 
 ---
 
