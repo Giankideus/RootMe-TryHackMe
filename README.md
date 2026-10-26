@@ -1,9 +1,8 @@
-[README.md](https://github.com/user-attachments/files/33934205/README.md)
 # Informe Técnico – RootMe (TryHackMe)
 
 > **Sala:** [TryHackMe – RootMe](https://tryhackme.com/room/rrootme)
 > **Dificultad:** Fácil
-> **Estado:** Completado  (flags de usuario y root obtenidas; no se exponen en texto plano — ver sección de evidencias)
+> **Estado:** Completado ✅ (flags de usuario y root obtenidas; no se exponen en texto plano — ver sección de evidencias)
 
 ---
 
@@ -40,7 +39,7 @@ obtener acceso como `root`.
 
 Máquina atacante: `10.64.189.39` · Máquina objetivo: `10.64.158.8`
 
-*(Evidencia: `evidencias/01-maquinas-activas.png`)*
+![Máquinas activas](evidencias/01-maquinas-activas.png)
 
 ```bash
 nmap -A -Pn -T5 10.64.158.8
@@ -57,7 +56,7 @@ El título de la página web es **"HackIT - Home"**, y la cabecera `PHPSESSID` c
 backend está escrito en PHP. El sistema operativo detectado corresponde a una distribución
 Linux (kernel de la familia 3.x–5.x según las huellas de `nmap`).
 
-*(Evidencia: `evidencias/02-nmap-scan.png`)*
+![Escaneo nmap](evidencias/02-nmap-scan.png)
 
 ### 3.2 Enumeración web
 
@@ -79,7 +78,9 @@ La ruta `/panel/` resultó ser la más relevante: contiene un formulario de **su
 archivos**, y `/uploads/` es, previsiblemente, el directorio donde se almacenan los archivos
 subidos (posible ejecución directa de scripts si no está correctamente aislado).
 
-*(Evidencia: `evidencias/03-gobuster.png`, `evidencias/04-panel-upload.png`)*
+![Enumeración con gobuster](evidencias/03-gobuster.png)
+
+![Panel de subida de archivos](evidencias/04-panel-upload.png)
 
 ### 3.3 Explotación – Subida de archivos insegura (Unrestricted File Upload)
 
@@ -96,12 +97,12 @@ blanca, permitiendo evadir la restricción.
    IP y puerto del atacante.
 2. Se renombró el archivo a `shell.phtml` para evadir el filtro de extensiones del formulario.
 
-   *(Evidencia: `evidencias/05-preparacion-shell-phtml.png`)*
+   ![Renombrado de la web shell a .phtml](evidencias/05-preparacion-shell-phtml.png)
 
 3. Se subió el archivo a través del panel web, confirmando el mensaje *"O arquivo foi upado
    com sucesso!"*.
 
-   *(Evidencia: `evidencias/06-upload-exitoso.png`)*
+   ![Subida exitosa del archivo](evidencias/06-upload-exitoso.png)
 
 4. Se puso en escucha un listener de `netcat`:
 
@@ -112,7 +113,7 @@ blanca, permitiendo evadir la restricción.
 5. Se accedió al archivo subido desde `/uploads/shell.phtml`, lo que disparó la ejecución
    del payload PHP y entregó una shell inversa como el usuario del servicio web (`www-data`).
 
-   *(Evidencia: `evidencias/07-reverse-shell-www-data.png`)*
+   ![Shell inversa recibida como www-data](evidencias/07-reverse-shell-www-data.png)
 
    ```
    uid=33(www-data) gid=33(www-data) groups=33(www-data)
@@ -132,8 +133,9 @@ blanca, permitiendo evadir la restricción.
    cat /var/www/user.txt
    ```
 
-   *(Evidencia: `evidencias/08-shell-estabilizada-user-txt.png`, flag redactada en
-   `evidencias/09-flag-usuario-redactada.png`)*
+   ![Shell estabilizada y localización de user.txt](evidencias/08-shell-estabilizada-user-txt.png)
+
+   ![Lectura de la flag de usuario (redactada)](evidencias/09-flag-usuario-redactada.png)
 
 **Condiciones que permitieron la explotación:**
 - Validación de archivos basada únicamente en la extensión, con una lista negra incompleta
@@ -161,7 +163,7 @@ Entre los resultados (la mayoría binarios del sistema esperables, como `/usr/bi
 `/usr/bin/passwd`, `/usr/bin/pkexec`), destacó uno que **no debería tener SUID en una
 configuración segura**: `/usr/bin/python2.7`.
 
-*(Evidencia: `evidencias/10-busqueda-suid.png`)*
+![Búsqueda de binarios SUID](evidencias/10-busqueda-suid.png)
 
 Según [GTFOBins](https://gtfobins.github.io/gtfobins/python/#suid), un binario de Python con
 bit SUID permite generar directamente una shell con los privilegios del propietario del
@@ -182,7 +184,7 @@ whoami
 # root
 ```
 
-*(Evidencia: `evidencias/11-escalada-root.png`)*
+![Confirmación de acceso como root](evidencias/11-escalada-root.png)
 
 Finalmente, se localizó y leyó la flag de root:
 
@@ -192,7 +194,7 @@ find / -type f -name root.txt 2>/dev/null
 cat /root/root.txt
 ```
 
-*(Evidencia: flag redactada en `evidencias/12-flag-root-redactada.png`)*
+![Lectura de la flag de root (redactada)](evidencias/12-flag-root-redactada.png)
 
 **Condiciones que permitieron la explotación:**
 - Asignación innecesaria del bit SUID a un intérprete de propósito general (Python), que por
